@@ -2,8 +2,28 @@
 
 > The Unified Development Ecosystem - Deploy any application with a single command
 
-[![CI](https://github.com/ryan-tobin/nexus-weaver/actions/workflows/ci.yml/badge.svg)](https://github.com/ryan-tobin/nexus-weaver/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+![License](https://img.shields.io/github/license/ryan-tobin/nexus-weaver)
+![GitHub Stars](https://img.shields.io/github/stars/ryan-tobin/nexus-weaver?style=social)
+![GitHub Forks](https://img.shields.io/github/forks/ryan-tobin/nexus-weaver?style=social)
+![GitHub Issues](https://img.shields.io/github/issues/ryan-tobin/nexus-weaver)
+![GitHub Pull Requests](https://img.shields.io/github/issues-pr/ryan-tobin/nexus-weaver)<br>
+
+![CI](https://img.shields.io/github/actions/workflow/status/ryan-tobin/nexus-weaver/ci.yml?branch=main&label=CI)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)<br>
+
+![C](https://img.shields.io/badge/C-00599C?logo=c&logoColor=white)
+![Java](https://img.shields.io/badge/Java-ED8B00?logo=openjdk&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?logo=springboot&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)<br>
+
+![Version](https://img.shields.io/github/v/release/ryan-tobin/nexus-weaver?include_prereleases)
+![Commits](https://img.shields.io/github/commit-activity/m/ryan-tobin/nexus-weaver)
+![Last Commit](https://img.shields.io/github/last-commit/ryan-tobin/nexus-weaver)
 
 ## What is Nexus Weaver?
 
