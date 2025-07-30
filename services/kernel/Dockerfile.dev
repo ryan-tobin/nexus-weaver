@@ -1,0 +1,42 @@
+# Nexus Weaver Kernel - Development DockerFile
+FROM ubuntu:22.04
+
+# Install development dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    make \
+    cmake \
+    pkg-config \
+    gdb \ 
+    valgrind \
+    clang \
+    clang-format \
+    clang-tools \
+    cppcheck \
+    libprotobuf-c-dev \
+    protobuf-c-compiler \
+    libgrpc-dev \
+    libgrpc++-dev \
+    protobuf-compiler-grpc \
+    libcheck-dev \
+    bear \
+    vim \
+    less \
+    htop \
+    strace \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app 
+
+# Create build directory
+RUN mkdir -p build 
+
+# Set dev environment variables
+ENV CC=gcc 
+ENV CGLAGS="-g -00"
+ENV ASAN_OPTIONS=detect_leaks=1
+
+# Keep container running for dev
+CMD ["tail", "-f", "/dev/null"]
