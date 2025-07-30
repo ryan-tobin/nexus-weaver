@@ -1,0 +1,119 @@
+# Nexus Weaver - Git Ignore File
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE Files
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+*.sublime-*
+
+# Build Outputs
+build/
+dist/
+out/
+target/
+*.o
+*.so
+*.a
+*.exe
+*.dll
+*.dylib
+
+# Language Specific - C
+*.d
+*.gcda
+*.gcno
+*.gcov
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+
+# Language Specific - Java
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+# Language Specific - Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.ruff_cache/
+venv/
+env/
+.env
+
+# Language Specific - Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+*.tsbuildinfo
+
+# Docker
+.docker/
+
+# Logs
+*.log
+logs/
+
+# Test Coverage
+coverage/
+*.lcov
+
+# Documentation
+docs/_build/
+site/
+
+# Secrets and Config
+*.pem
+*.key
+.env*
+!.env.example
+secrets/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# OS X
+.AppleDouble
+.LSOverride
+
+# Windows
+Desktop.ini
+ehthumbs.db
+
+# Linux
+.directory
+.Trash-*

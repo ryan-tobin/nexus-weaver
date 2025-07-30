@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: nexus-weaver-db
+    environment:
+      POSTGRES_DB: nexusweaver
+      POSTGRES_USER: weaver
+      POSTGRES_PASSWORD: weaver-dev-password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U weaver" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Control Plane (Java/Spring Boot)
+  control-plane:
+    build:
+      context: ./services/control-plane
+      dockerfile: Dockerfile.dev
+    container_name: nexus-weaver-control
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: nexusweaver
+      DB_USER: weaver
+      DB_PASSWORD: weaver-dev-password
+      KERNEL_GRPC_PORT: 50051
+    ports:
+      - "8080:8080"
+      - "8081:8081" # Actuator/metrics
+    volumes:
+      - ./services/control-plane:/app
+      - maven-cache:/root/.m2
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: mvn spring-boot:run -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+
+  # Kernel (C) - Development instance
+  kernel-dev:
+    build:
+      context: ./services/kernel
+      dockerfile: Dockerfile.dev
+    container_name: nexus-weaver-kernel-dev
+    privileged: true # Required for cgroups
+    cap_add:
+      - SYS_ADMIN
+      - SYS_RESOURCE
+    environment:
+      GRPC_PORT: 50051
+      LOG_LEVEL: debug
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./services/kernel:/app
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    command: [ "./build/kernel", "--dev-mode" ]
+
+  # Dashboard (React)
+  dashboard:
+    build:
+      context: ./services/dashboard
+      dockerfile: Dockerfile.dev
+    container_name: nexus-weaver-dashboard
+    environment:
+      REACT_APP_API_URL: http://localhost:8080
+      CHOKIDAR_USEPOLLING: "true" # For file watching in Docker
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./services/dashboard:/app
+      - /app/node_modules # Prevent overwriting node_modules
+    depends_on:
+      - control-plane
+    command: npm start
+
+  # Redis (for caching and pub/sub)
+  redis:
+    image: redis:7-alpine
+    container_name: nexus-weaver-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+
+  # Development Tools Container
+  dev-tools:
+    image: nexus-weaver/dev-tools
+    build:
+      context: ./dev-tools
+      dockerfile: Dockerfile
+    container_name: nexus-weaver-dev-tools
+    volumes:
+      - .:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WORKSPACE=/workspace
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+volumes:
+  postgres-data:
+  maven-cache:
+  redis-data:
+
+
+networks:
+  default:
+    name: nexus-weaver-network
