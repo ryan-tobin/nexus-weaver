@@ -1,0 +1,27 @@
+# Example Nexus Weaver Application
+name: hello-world
+description: A simple hello world application
+version: 1.0.0
+
+services:
+  web:
+    language: python
+    port: 8000
+    source: ./web
+    command: python -m http.server 8000
+    environment:
+      ENV: production
+      DEBUG: "false"
+    limits:
+      memory: 256M
+      cpu_shares: 512
+      pids_limit: 50
+
+  api:
+    language: node
+    port: 3000
+    source: ./api
+    command: node server.js
+    limits:
+      memory: 512M
+      cpu_shares: 1024
