@@ -1,0 +1,258 @@
+// Nexus Weaver Kernel API
+// Copyright (c) 2024 Nexus Weaver Project
+
+syntax = "proto3";
+
+package nexusweaver.kernel.v1;
+
+option go_package = "github.com/nexus-weaver/nexus-weaver/api/kernel/v1;kernelv1";
+option java_package = "io.nexusweaver.kernel.v1";
+option java_multiple_files = true;
+
+// Kernel service provides process and resource management
+service KernelService {
+  // Start a new process
+  rpc StartProcess(StartProcessRequest) returns (StartProcessResponse);
+  
+  // Stop a running process
+  rpc StopProcess(StopProcessRequest) returns (StopProcessResponse);
+  
+  // Get process information
+  rpc GetProcess(GetProcessRequest) returns (GetProcessResponse);
+  
+  // List all processes
+  rpc ListProcesses(ListProcessesRequest) returns (ListProcessesResponse);
+  
+  // Update resource limits for a process
+  rpc UpdateLimits(UpdateLimitsRequest) returns (UpdateLimitsResponse);
+  
+  // Stream process logs
+  rpc StreamLogs(StreamLogsRequest) returns (stream LogEntry);
+  
+  // Get process statistics
+  rpc GetStats(GetStatsRequest) returns (GetStatsResponse);
+  
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Process state enumeration
+enum ProcessState {
+  PROCESS_STATE_UNSPECIFIED = 0;
+  PROCESS_STATE_INIT = 1;
+  PROCESS_STATE_RUNNING = 2;
+  PROCESS_STATE_STOPPED = 3;
+  PROCESS_STATE_FAILED = 4;
+  PROCESS_STATE_TERMINATED = 5;
+}
+
+// Resource limits for a process
+message ResourceLimits {
+  // Memory limit in bytes (0 = unlimited)
+  uint64 memory_bytes = 1;
+  
+  // CPU shares (relative weight, default 1024)
+  uint32 cpu_shares = 2;
+  
+  // CPU quota in microseconds per period
+  uint32 cpu_quota_us = 3;
+  
+  // CPU period in microseconds (default 100000 = 100ms)
+  uint32 cpu_period_us = 4;
+  
+  // Maximum number of PIDs (0 = unlimited)
+  uint32 pids_limit = 5;
+}
+
+// Process information
+message ProcessInfo {
+  // Unique process identifier
+  string id = 1;
+  
+  // Process name
+  string name = 2;
+  
+  // System process ID
+  int32 pid = 3;
+  
+  // Current process state
+  ProcessState state = 4;
+  
+  // Command to execute
+  string command = 5;
+  
+  // Working directory
+  string working_dir = 6;
+  
+  // Resource limits
+  ResourceLimits limits = 7;
+  
+  // Process start time (Unix timestamp)
+  int64 start_time = 8;
+  
+  // User ID
+  uint32 uid = 9;
+  
+  // Group ID
+  uint32 gid = 10;
+  
+  // Environment variables
+  map<string, string> environment = 11;
+}
+
+// Request to start a process
+message StartProcessRequest {
+  // Process configuration
+  ProcessInfo process = 1;
+}
+
+// Response from starting a process
+message StartProcessResponse {
+  // Started process info
+  ProcessInfo process = 1;
+}
+
+// Request to stop a process
+message StopProcessRequest {
+  // Process ID to stop
+  string process_id = 1;
+  
+  // Grace period in seconds before force kill
+  uint32 grace_period = 2;
+}
+
+// Response from stopping a process
+message StopProcessResponse {
+  // Final process state
+  ProcessState final_state = 1;
+}
+
+// Request to get process information
+message GetProcessRequest {
+  // Process ID
+  string process_id = 1;
+}
+
+// Response with process information
+message GetProcessResponse {
+  // Process information
+  ProcessInfo process = 1;
+}
+
+// Request to list processes
+message ListProcessesRequest {
+  // Filter by state (empty = all states)
+  repeated ProcessState states = 1;
+  
+  // Filter by name prefix
+  string name_prefix = 2;
+}
+
+// Response with process list
+message ListProcessesResponse {
+  // List of processes
+  repeated ProcessInfo processes = 1;
+}
+
+// Request to update resource limits
+message UpdateLimitsRequest {
+  // Process ID
+  string process_id = 1;
+  
+  // New resource limits
+  ResourceLimits limits = 2;
+}
+
+// Response from updating limits
+message UpdateLimitsResponse {
+  // Updated process info
+  ProcessInfo process = 1;
+}
+
+// Request to stream logs
+message StreamLogsRequest {
+  // Process ID
+  string process_id = 1;
+  
+  // Follow log output
+  bool follow = 2;
+  
+  // Number of lines from the end (0 = all)
+  uint32 tail_lines = 3;
+}
+
+// Log entry
+message LogEntry {
+  // Timestamp (Unix nano)
+  int64 timestamp = 1;
+  
+  // Log level
+  string level = 2;
+  
+  // Log message
+  string message = 3;
+  
+  // Source (stdout/stderr)
+  string source = 4;
+}
+
+// Process statistics
+message ProcessStats {
+  // Current memory usage in bytes
+  uint64 memory_current = 1;
+  
+  // Peak memory usage in bytes
+  uint64 memory_peak = 2;
+  
+  // CPU usage percentage
+  double cpu_usage_percent = 3;
+  
+  // Total CPU time in microseconds
+  uint64 cpu_time_us = 4;
+  
+  // Bytes read
+  uint64 io_read_bytes = 5;
+  
+  // Bytes written
+  uint64 io_write_bytes = 6;
+  
+  // Number of threads
+  uint32 num_threads = 7;
+}
+
+// Request for process statistics
+message GetStatsRequest {
+  // Process ID
+  string process_id = 1;
+}
+
+// Response with process statistics
+message GetStatsResponse {
+  // Process statistics
+  ProcessStats stats = 1;
+}
+
+// Health check request
+message HealthCheckRequest {
+  // Service name to check
+  string service = 1;
+}
+
+// Health check response
+message HealthCheckResponse {
+  // Service status
+  enum ServingStatus {
+    UNKNOWN = 0;
+    SERVING = 1;
+    NOT_SERVING = 2;
+    SERVICE_UNKNOWN = 3;
+  }
+  
+  ServingStatus status = 1;
+  
+  // Additional status message
+  string message = 2;
+  
+  // Kernel version
+  string version = 3;
+}
