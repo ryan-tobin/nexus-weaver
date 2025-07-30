@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  dashboard-dev:
+    build:
+      context: ./services/dashboard
+      dockerfile: Dockerfile.dev
+    container_name: nexus-weaver-dashboard-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./services/dashboard/src:/app/src
+      - ./services/dashboard/public:/app/public
+      - ./services/dashboard/index.html:/app/index.html
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:8080/api/v1
+    networks:
+      - nexus-weaver-network
+    depends_on:
+      - control-plane
+
+  dashboard:
+    build:
+      context: ./services/dashboard
+      dockerfile: Dockerfile
+    container_name: nexus-weaver-dashboard
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - nexus-weaver-network
+    depends_on:
+      - control-plane
+    profiles:
+      - production
+
+networks:
+  nexus-weaver-network:
+    external: true
