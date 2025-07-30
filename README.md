@@ -2,7 +2,7 @@
 
 > The Unified Development Ecosystem - Deploy any application with a single command
 
-[![CI](https://github.com/yourusername/nexus-weaver/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/nexus-weaver/actions/workflows/ci.yml)
+[![CI](https://github.com/ryant-tobin/nexus-weaver/actions/workflows/ci.yml/badge.svg)](https://github.com/ryant-tobin/nexus-weaver/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## What is Nexus Weaver?
@@ -51,7 +51,7 @@ $ weaver deploy
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/nexus-weaver.git
+git clone https://github.com/ryant-tobin/nexus-weaver.git
 cd nexus-weaver
 
 # Start the local development environment
