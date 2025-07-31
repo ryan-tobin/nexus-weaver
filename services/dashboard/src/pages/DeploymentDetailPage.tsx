@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -16,11 +16,10 @@ import {
     Terminal,
     Cpu,
     MemoryStick,
-    GitBranch,
     ExternalLink
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
-import { apiClient, Deployment, DeploymentStatus, ServiceStatus } from '@/api/client'
+import { apiClient, DeploymentStatus, ServiceStatus } from '@/api/client'
 import { cn } from "@/lib/utils";
 import { format } from 'date-fns'
 
@@ -162,7 +161,7 @@ export default function DeploymentDetailPage() {
               <StatusIcon 
                 className={cn(
                   'mr-1.5 h-4 w-4',
-                  status.animate ? 'animate-spin' : undefined
+                  'animate' in status && status.animate ? 'animate-spin' : undefined
                 )} 
               />
               {status.label}
@@ -240,7 +239,7 @@ export default function DeploymentDetailPage() {
           <div>
             <dt className="text-sm font-medium text-gray-500">Running Services</dt>
             <dd className="mt-1 text-sm text-gray-900">
-              {deployment.services.filter(s => s.status === ServiceStatus.RUNNING).length} of {deployment.services.length}
+              {deployment.services.filter((s: any) => s.status === ServiceStatus.RUNNING).length} of {deployment.services.length}
             </dd>
           </div>
         </dl>
@@ -252,7 +251,7 @@ export default function DeploymentDetailPage() {
           <h2 className="text-lg font-medium text-gray-900">Services</h2>
         </div>
         <div className="divide-y divide-gray-200">
-          {deployment.services.map((service) => (
+          {deployment.services.map((service: any) => (
             <ServiceRow 
               key={service.id} 
               service={service}
@@ -266,7 +265,7 @@ export default function DeploymentDetailPage() {
       {/* Selected Service Details */}
       {selectedService && (
         <ServiceDetails 
-          service={deployment.services.find(s => s.id === selectedService)!}
+          service={deployment.services.find((s: any) => s.id === selectedService)!}
           deploymentId={deployment.id}
         />
       )}
@@ -312,7 +311,7 @@ function ServiceRow({
         <div className="flex items-center space-x-4">
           <span className={cn(
             'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-            statusColors[service.status] || 'text-gray-500 bg-gray-100'
+            statusColors[service.status as keyof typeof statusColors] || 'text-gray-500 bg-gray-100'
           )}>
             {service.status}
           </span>
@@ -325,7 +324,7 @@ function ServiceRow({
   )
 }
 
-function ServiceDetails({ service, deploymentId }: { service: any, deploymentId: string }) {
+function ServiceDetails({ service, deploymentId: _deploymentId }: { service: any, deploymentId: string }) {
   return (
     <div className="mt-6 bg-white shadow rounded-lg p-6">
       <div className="flex items-center justify-between mb-4">

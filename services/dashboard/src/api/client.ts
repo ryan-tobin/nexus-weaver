@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
 import { toast } from 'react-hot-toast'
+import { supabase } from '@/lib/supabase'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'
 
@@ -15,11 +16,20 @@ class ApiClient {
         })
 
         this.client.interceptors.request.use(
-            (config) => {
-                const auth = localStorage.getItem('auth')
-                if (auth) {
-                    const { username, password } = JSON.parse(auth)
-                    config.auth = { username, password }
+            async (config) => {
+                // Get current session
+                const { data: { session } } = await supabase.auth.getSession()
+                
+                if (session?.access_token) {
+                    // Add Supabase access token as Bearer token
+                    config.headers.Authorization = `Bearer ${session.access_token}`
+                } else {
+                    // Fallback to basic auth for backward compatibility
+                    const auth = localStorage.getItem('auth')
+                    if (auth) {
+                        const { username, password } = JSON.parse(auth)
+                        config.auth = { username, password }
+                    }
                 }
                 return config   
             },
@@ -30,11 +40,14 @@ class ApiClient {
 
         this.client.interceptors.response.use(
             (response) => response,
-            (error) => {
+            async (error) => {
                 if (error.response?.status === 401) {
-                    localStorage.removeItem('auth')
-                    window.location.href = '/'
-                    toast.error('Session expired. Please login again.')
+                    // Try to refresh the session
+                    const { data: { session } } = await supabase.auth.getSession()
+                    if (!session) {
+                        await supabase.auth.signOut()
+                        toast.error('Session expired. Please login again.')
+                    }
                 } else if (error.response?.data?.detail) {
                     toast.error(error.response.data.detail)
                 } else if (error.message) {

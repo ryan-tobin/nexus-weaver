@@ -13,6 +13,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.53.0",
     "@tanstack/react-query": "^5.17.9",
     "@tanstack/react-query-devtools": "^5.83.0",
     "@tanstack/react-table": "^8.11.2",

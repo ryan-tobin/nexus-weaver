@@ -1,5 +1,5 @@
 import { ReactNode, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
     LayoutDashboard,
     Package,
@@ -8,8 +8,7 @@ import {
     X,
     Activity
 } from 'lucide-react'
-import { useAuth } from '@/api/contexts/AuthContext'
-import LoginModal from '@/components/LoginModal'
+import { useAuth } from '@/api/contexts/SupabaseAuthContext'
 import { NexusWeaverLogo } from '@/components/NexusWeaverLogo'
 
 interface LayoutProps {
@@ -18,13 +17,11 @@ interface LayoutProps {
 
 export default function Layout({children}: LayoutProps) {
     const location = useLocation()
-    const navigate = useNavigate()
-    const {isAuthenticated, username, logout} = useAuth()
+    const { user, signOut } = useAuth()
     const [sidebarOpen, setSidebarOpen] = useState(false)
 
-    const handleLogout = () => {
-        logout()
-        navigate('/')
+    const handleLogout = async () => {
+        await signOut()
     }
 
     const navigation = [
@@ -32,9 +29,6 @@ export default function Layout({children}: LayoutProps) {
         { name: 'Applications', href: '/applications', icon: Package},
     ]
 
-    if (!isAuthenticated) {
-        return <LoginModal />
-    }
 
     return (
     <div className="min-h-screen bg-gray-50">
@@ -100,12 +94,12 @@ export default function Layout({children}: LayoutProps) {
               <div className="flex items-center">
                 <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
                   <span className="text-sm font-medium text-primary-700">
-                    {username?.charAt(0).toUpperCase()}
+                    {user?.email?.charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm font-medium text-gray-700">{username}</p>
-                  <p className="text-xs font-medium text-gray-500">Administrator</p>
+                  <p className="text-sm font-medium text-gray-700">{user?.email}</p>
+                  <p className="text-xs font-medium text-gray-500">User</p>
                 </div>
               </div>
               <button

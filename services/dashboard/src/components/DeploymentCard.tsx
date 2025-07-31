@@ -87,7 +87,7 @@ export default function DeploymentCard({ deployment }: DeploymentCardProps) {
             <StatusIcon 
               className={cn(
                 'mr-1 h-3 w-3',
-                status.animate ? 'animate-spin' : undefined
+                'animate' in status && status.animate ? 'animate-spin' : undefined
               )} 
             />
             {status.label}
