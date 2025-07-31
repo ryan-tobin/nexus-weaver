@@ -11,7 +11,6 @@ RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY src ./src
-COPY ../api ../api
 
 # Build the app
 RUN mvn clean package -DskipTests 
@@ -41,9 +40,9 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Set JVM options
+# Set JVM options and Spring profile
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
+ENV SPRING_PROFILES_ACTIVE=prod
 
 # Run app
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -jar app.jar" ]
-
+ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Dspring.profiles.active=$SPRING_PROFILES_ACTIVE -jar app.jar" ]

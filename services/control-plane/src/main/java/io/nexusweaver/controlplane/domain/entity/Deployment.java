@@ -46,7 +46,7 @@ public class Deployment {
     @Column(nullable = false)
     private DeploymentStatus status;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "jsonb")
     private String manifest;
 
     @OneToMany(mappedBy = "deployment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
