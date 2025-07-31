@@ -1,0 +1,139 @@
+// Nexus Weaver Kernel API - Go Implementation
+// Copyright (c) 2024 Nexus Weaver Project
+
+syntax = "proto3";
+
+package nexusweaver.kernel.v1;
+
+option go_package = "./api/kernelv1;kernelv1";
+
+// Kernel service provides process and resource management via Docker
+service KernelService {
+  // Start a new process in a Docker container
+  rpc StartProcess(StartProcessRequest) returns (StartProcessResponse);
+  
+  // Stop a running process
+  rpc StopProcess(StopProcessRequest) returns (StopProcessResponse);
+  
+  // Get process status
+  rpc GetProcessStatus(GetProcessStatusRequest) returns (GetProcessStatusResponse);
+  
+  // List all managed processes
+  rpc ListProcesses(ListProcessesRequest) returns (ListProcessesResponse);
+  
+  // Health check
+  rpc HealthCheck(HealthCheckRequest) returns (HealthCheckResponse);
+}
+
+// Request to start a process
+message StartProcessRequest {
+  // Process name (used for container naming)
+  string process_name = 1;
+  
+  // Programming language runtime
+  string language = 2;
+  
+  // Command to execute (optional, will use default if empty)
+  string command = 3;
+  
+  // Node ID (for compatibility with Control Plane)
+  string node_id = 4;
+  
+  // Port to expose
+  int32 port = 5;
+  
+  // Memory limit in bytes
+  int64 memory_limit = 6;
+  
+  // CPU shares (relative weight)
+  int32 cpu_shares = 7;
+  
+  // Environment variables
+  map<string, string> environment = 8;
+}
+
+// Response from starting a process
+message StartProcessResponse {
+  // Success flag
+  bool success = 1;
+  
+  // Process ID (Docker container ID prefix)
+  string process_id = 2;
+  
+  // Response message
+  string message = 3;
+}
+
+// Request to stop a process
+message StopProcessRequest {
+  // Process ID to stop
+  string process_id = 1;
+}
+
+// Response from stopping a process
+message StopProcessResponse {
+  // Success flag
+  bool success = 1;
+  
+  // Response message
+  string message = 2;
+}
+
+// Request to get process status
+message GetProcessStatusRequest {
+  // Process ID
+  string process_id = 1;
+}
+
+// Response with process status
+message GetProcessStatusResponse {
+  // Process status (running, stopped, failed, not_found)
+  string status = 1;
+}
+
+// Request to list processes
+message ListProcessesRequest {
+  // No filters for now - return all
+}
+
+// Process information for listing
+message ProcessInfo {
+  // Process ID
+  string process_id = 1;
+  
+  // Container/process name
+  string name = 2;
+  
+  // Current status
+  string status = 3;
+  
+  // Programming language
+  string language = 4;
+  
+  // Exposed port
+  int32 port = 5;
+  
+  // Creation timestamp (Unix seconds)
+  int64 created_at = 6;
+}
+
+// Response with process list
+message ListProcessesResponse {
+  // List of processes
+  repeated ProcessInfo processes = 1;
+}
+
+// Health check request
+message HealthCheckRequest {
+  // Optional service name to check
+  string service = 1;
+}
+
+// Health check response
+message HealthCheckResponse {
+  // Health status (healthy, unhealthy)
+  string status = 1;
+  
+  // Status message
+  string message = 2;
+}
