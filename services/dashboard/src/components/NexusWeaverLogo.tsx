@@ -3,7 +3,7 @@ import React from 'react'
 interface LogoProps {
   className?: string
   size?: 'sm' | 'md' | 'lg' | 'xl'
-  variant?: 'full' | 'icon'
+  variant?: 'full' | 'icon' | 'light'
 }
 
 export const NexusWeaverLogo: React.FC<LogoProps> = ({ 
@@ -138,7 +138,7 @@ export const NexusWeaverLogo: React.FC<LogoProps> = ({
           </linearGradient>
         </defs>
       </svg>
-      <span className={`font-bold text-gray-900 ${fontSize}`}>Nexus Weaver</span>
+      <span className={`font-bold ${variant === 'light' ? 'text-white' : 'text-gray-900'} ${fontSize}`}>Nexus Weaver</span>
     </div>
   )
 }
