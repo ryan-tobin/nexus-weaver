@@ -14,16 +14,10 @@ import {
 import { Github, Twitter } from 'lucide-react'
 import { NexusWeaverLogo } from '@/components/NexusWeaverLogo'
 import { useAuth } from '@/api/contexts/SupabaseAuthContext'
-import AuthModal from '@/components/AuthModal'
 
 export default function LandingPage() {
-  const [showAuth, setShowAuth] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { user } = useAuth()
-
-  if (showAuth) {
-    return <AuthModal />
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
@@ -53,19 +47,19 @@ export default function LandingPage() {
                 </Link>
               ) : (
                 <>
-                  <button 
-                    onClick={() => setShowAuth(true)}
+                  <Link 
+                    to="/signin"
                     className="text-gray-600 hover:text-gray-900 transition"
                   >
                     Sign In
-                  </button>
-                  <button 
-                    onClick={() => setShowAuth(true)}
+                  </Link>
+                  <Link 
+                    to="/signup"
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition"
                   >
                     Get Started
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </button>
+                  </Link>
                 </>
               )}
             </div>
@@ -99,18 +93,18 @@ export default function LandingPage() {
                 </Link>
               ) : (
                 <>
-                  <button 
-                    onClick={() => setShowAuth(true)}
+                  <Link 
+                    to="/signin"
                     className="block w-full text-center text-gray-600 hover:text-gray-900 py-2"
                   >
                     Sign In
-                  </button>
-                  <button 
-                    onClick={() => setShowAuth(true)}
+                  </Link>
+                  <Link 
+                    to="/signup"
                     className="block w-full text-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
                   >
                     Get Started
-                  </button>
+                  </Link>
                 </>
               )}
             </div>
@@ -132,13 +126,13 @@ export default function LandingPage() {
             Nexus Weaver is a cloud-native container orchestration platform that simplifies deploying and managing distributed applications across your infrastructure.
           </p>
           <div className="mt-10 flex justify-center gap-x-6">
-            <button 
-              onClick={() => setShowAuth(true)}
+            <Link 
+              to="/signup"
               className="group inline-flex items-center justify-center rounded-md bg-primary-600 px-6 py-3 text-lg font-semibold text-white hover:bg-primary-700 transition"
             >
               Start Deploying
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </Link>
             <a
               href="https://github.com/ryan-tobin/nexus-weaver"
               target="_blank"
@@ -296,13 +290,13 @@ $ weaver scale api --replicas 5`}
             Join developers who are deploying containers with confidence.
           </p>
           <div className="mt-8">
-            <button 
-              onClick={() => setShowAuth(true)}
+            <Link 
+              to="/signup"
               className="inline-flex items-center justify-center rounded-md bg-white px-8 py-3 text-lg font-semibold text-primary-600 hover:bg-gray-100 transition"
             >
               Get Started Free
               <ArrowRight className="ml-2 h-5 w-5" />
-            </button>
+            </Link>
           </div>
         </div>
       </section>
