@@ -62,7 +62,14 @@ func main() {
 	// Create kernel service
 	kernelService := NewKernelService(dockerClient, config.DevMode)
 
-	// Setup gRPC server
+	// Setup TCP server for legacy Control Plane compatibility
+	tcpServer := NewTCPServer(kernelService, config.Port)
+	if err := tcpServer.Start(); err != nil {
+		logrus.WithError(err).Fatal("Failed to start TCP server")
+	}
+
+	// Setup gRPC server on different port for future use
+	grpcPort := config.Port + 1 // Use port 50052 for gRPC
 	grpcServer := grpc.NewServer()
 	kernelv1.RegisterKernelServiceServer(grpcServer, kernelService)
 	
@@ -72,11 +79,19 @@ func main() {
 		logrus.Info("gRPC reflection enabled (dev mode)")
 	}
 
-	// Start server
-	listen, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Port))
+	// Start gRPC server
+	grpcListen, err := net.Listen("tcp", fmt.Sprintf(":%d", grpcPort))
 	if err != nil {
-		logrus.WithError(err).Fatal("Failed to listen")
+		logrus.WithError(err).Fatal("Failed to listen on gRPC port")
 	}
+
+	// Start gRPC server in background
+	go func() {
+		logrus.WithField("address", grpcListen.Addr()).Info("gRPC server ready for future use")
+		if err := grpcServer.Serve(grpcListen); err != nil {
+			logrus.WithError(err).Error("gRPC server error")
+		}
+	}()
 
 	// Handle graceful shutdown
 	go func() {
@@ -86,14 +101,18 @@ func main() {
 		
 		logrus.Info("Shutting down kernel...")
 		kernelService.Shutdown()
+		tcpServer.Stop()
 		grpcServer.GracefulStop()
+		os.Exit(0)
 	}()
 
-	logrus.WithField("address", listen.Addr()).Info("Kernel ready and waiting for requests")
+	logrus.WithFields(logrus.Fields{
+		"tcpPort":  config.Port,
+		"grpcPort": grpcPort,
+	}).Info("Kernel ready and waiting for requests")
 	
-	if err := grpcServer.Serve(listen); err != nil {
-		logrus.WithError(err).Fatal("Failed to serve")
-	}
+	// Keep main thread alive
+	select {}
 }
 
 func parseFlags() *KernelConfig {

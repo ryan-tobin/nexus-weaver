@@ -1,0 +1,7 @@
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY kernel-linux ./kernel
+RUN chmod +x ./kernel
+EXPOSE 50051 50052
+CMD ["./kernel", "--dev-mode"]
