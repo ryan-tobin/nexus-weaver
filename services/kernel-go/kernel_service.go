@@ -1,6 +1,8 @@
 package main
 
 import (
+	"archive/tar"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -341,8 +343,11 @@ func (k *KernelService) generateDockerfile(language, command string, environment
 }
 
 func (k *KernelService) buildContainerImage(ctx context.Context, dockerfile, tag string, logger *logrus.Entry) error {
-	// Create build context with Dockerfile
-	buildContext := strings.NewReader(dockerfile)
+	// Create build context as tar archive
+	buildContext, err := k.createBuildContext(dockerfile)
+	if err != nil {
+		return fmt.Errorf("failed to create build context: %w", err)
+	}
 	
 	buildOptions := types.ImageBuildOptions{
 		Tags:           []string{tag},
@@ -372,6 +377,34 @@ func (k *KernelService) buildContainerImage(ctx context.Context, dockerfile, tag
 	}
 
 	return nil
+}
+
+func (k *KernelService) createBuildContext(dockerfile string) (io.Reader, error) {
+	// Create a tar archive containing the Dockerfile
+	var buf bytes.Buffer
+	tw := tar.NewWriter(&buf)
+	
+	// Add Dockerfile to tar
+	dockerfileBytes := []byte(dockerfile)
+	header := &tar.Header{
+		Name: "Dockerfile",
+		Mode: 0644,
+		Size: int64(len(dockerfileBytes)),
+	}
+	
+	if err := tw.WriteHeader(header); err != nil {
+		return nil, err
+	}
+	
+	if _, err := tw.Write(dockerfileBytes); err != nil {
+		return nil, err
+	}
+	
+	if err := tw.Close(); err != nil {
+		return nil, err
+	}
+	
+	return bytes.NewReader(buf.Bytes()), nil
 }
 
 func (k *KernelService) buildEnvironmentVars(envMap map[string]string) []string {
