@@ -11,10 +11,12 @@ from weaver import __version__
 from weaver.config import Config 
 from weaver.client import NexusWeaverClient 
 from weaver.manifest import Manifest
+from weaver.auth import SupabaseAuth
 from weaver.exceptions import WeaverError
 
 console = Console()
 config = Config()
+auth = SupabaseAuth()
 
 @click.group()
 @click.version_option(version=__version__, prog_name="weaver")
@@ -34,7 +36,72 @@ def cli(ctx, api_url, username, password):
         config.password = password 
 
     ctx.obj['config'] = config 
-    ctx.obj['client'] = NexusWeaverClient(config)
+    ctx.obj['auth'] = auth
+    ctx.obj['client'] = NexusWeaverClient(config, auth)
+
+# Authentication command group
+@cli.group(name='auth')
+def auth_cmd():
+    """Authentication commands"""
+    pass
+
+@auth_cmd.command(name='login')
+@click.option('--email', prompt='Email', help='Your email address')
+@click.option('--password', prompt='Password', hide_input=True, help='Your password')
+def auth_login(email, password):
+    """Sign in with your Supabase account"""
+    console.print("[cyan]Signing in...[/cyan]")
+    
+    if auth.sign_in(email, password):
+        user = auth.get_user()
+        if user:
+            console.print(f"Welcome back, {user.get('email', 'user')}!")
+    else:
+        console.print("[red]Failed to sign in. Please check your credentials.[/red]")
+        raise click.Abort()
+
+@auth_cmd.command(name='register')
+@click.option('--email', prompt='Email', help='Your email address')
+@click.option('--password', prompt='Password', hide_input=True, 
+              confirmation_prompt=True, help='Your password')
+def auth_register(email, password):
+    """Create a new Supabase account"""
+    console.print("[cyan]Creating account...[/cyan]")
+    
+    if auth.sign_up(email, password):
+        console.print("\n[bold green]Account created successfully![/bold green]")
+        console.print("Please check your email for a confirmation link before signing in.")
+    else:
+        console.print("[red]Failed to create account.[/red]")
+        raise click.Abort()
+
+@auth_cmd.command(name='logout')
+def auth_logout():
+    """Sign out of your account"""
+    if auth.is_authenticated():
+        auth.sign_out()
+    else:
+        console.print("[yellow]You are not currently signed in.[/yellow]")
+
+@auth_cmd.command(name='reset-password')
+@click.option('--email', prompt='Email', help='Your email address')
+def auth_reset_password(email):
+    """Send a password reset email"""
+    console.print("[cyan]Sending password reset email...[/cyan]")
+    auth.reset_password(email)
+
+@auth_cmd.command(name='status')
+def auth_status():
+    """Show authentication status"""
+    if auth.is_authenticated():
+        user = auth.get_user()
+        console.print("[green]✓[/green] Signed in")
+        if user:
+            console.print(f"  Email: {user.get('email', 'Unknown')}")
+            console.print(f"  User ID: {user.get('id', 'Unknown')}")
+    else:
+        console.print("[yellow]Not signed in[/yellow]")
+        console.print("Run [bold]weaver auth login[/bold] to sign in")
 
 @cli.command()
 def init():

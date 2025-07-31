@@ -10,7 +10,7 @@ from typing import Optional
 class Config:
     """Configuration for the Nexus Weaver CLI"""
 
-    def __inti__(self):
+    def __init__(self):
         self.api_url = "http://localhost:8080"
         self.username = "admin"
         self.password = "admin"

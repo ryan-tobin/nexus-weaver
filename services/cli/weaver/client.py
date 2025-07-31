@@ -7,20 +7,35 @@ from typing import Dict, List, Optional, Any
 from urllib.parse import urljoin
 
 from weaver.config import Config
+from weaver.auth import SupabaseAuth
 from weaver.exceptions import WeaverError, AuthenticationError, NotFoundError
 
 
 class NexusWeaverClient:
     """Client for the Nexus Weaver Control Plane API"""
     
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, auth: Optional[SupabaseAuth] = None):
         self.config = config
+        self.auth = auth or SupabaseAuth()
         self.session = requests.Session()
-        self.session.auth = (config.username, config.password)
+        
+        # Set up authentication
+        self._setup_auth()
+        
         self.session.headers.update({
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         })
+    
+    def _setup_auth(self):
+        """Setup authentication headers"""
+        # Try Supabase auth first
+        token = self.auth.get_access_token()
+        if token:
+            self.session.headers['Authorization'] = f'Bearer {token}'
+        else:
+            # Fallback to basic auth
+            self.session.auth = (self.config.username, self.config.password)
     
     def _url(self, path: str) -> str:
         """Build full URL for API endpoint"""
@@ -29,7 +44,12 @@ class NexusWeaverClient:
     def _handle_response(self, response: requests.Response) -> Any:
         """Handle API response and raise appropriate errors"""
         if response.status_code == 401:
-            raise AuthenticationError("Invalid credentials")
+            # Try to refresh the session if using Supabase auth
+            if self.auth.is_authenticated():
+                if self.auth.refresh_session():
+                    # Update auth headers and retry would happen at higher level
+                    self._setup_auth()
+            raise AuthenticationError("Authentication failed. Please run 'weaver auth login'")
         elif response.status_code == 404:
             raise NotFoundError("Resource not found")
         elif response.status_code >= 400:

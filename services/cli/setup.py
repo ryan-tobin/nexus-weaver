@@ -36,6 +36,8 @@ setup(
         "rich>=13.0.0",
         "tabulate>=0.9.0",
         "python-dotenv>=1.0.0",
+        "supabase>=2.0.0",
+        "keyring>=24.0.0",
     ],
     extras_require = {
         "dev": [
