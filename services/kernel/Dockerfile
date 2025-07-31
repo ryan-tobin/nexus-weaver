@@ -42,7 +42,7 @@ COPY --from=builder /build/build/kernel /usr/local/bin/kernel
 
 # Set up directories
 RUN mkdir -p /var/log/nexus-weaver && \
-    chwon -R nexus:nexus /var/log/nexus-weaver 
+    chown -R nexus:nexus /var/log/nexus-weaver 
 
 # Expose gRPC port
 EXPOSE 50051

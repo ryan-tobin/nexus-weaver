@@ -190,8 +190,11 @@ public class DeploymentServiceImpl implements DeploymentService {
             
             for (io.nexusweaver.controlplane.domain.entity.Service service : deployment.getServices()) {
                 try {
-                    // Select a node (for now, just use "localhost")
-                    String nodeId = "localhost";
+                    // Select a node (use kernel VM IP from environment)
+                    String nodeId = System.getenv("KERNEL_HOST");
+                    if (nodeId == null || nodeId.isEmpty()) {
+                        nodeId = "localhost"; // fallback for local development
+                    }
                     service.setNodeId(nodeId);
                     
                     // Start process on kernel
