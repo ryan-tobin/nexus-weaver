@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  control-plane:
+    build:
+      context: ./services/control-plane
+      dockerfile: Dockerfile.dev
+    container_name: nexus-weaver-control-supabase
+    env_file:
+      - ./services/control-plane/.env.development
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+    ports:
+      - "8080:8080"
+      - "5005:5005" # Debug port
+    volumes:
+      - ./services/control-plane:/app
+      - maven-cache:/root/.m2
+    command: mvn spring-boot:run
+
+volumes:
+  maven-cache:
